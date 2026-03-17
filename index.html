@@ -2,209 +2,131 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام مراقبة سَرمد الذكي 🔒</title>
+    <title>نظام مراقبة سَرمد الاحترافي 🛡️</title>
     <style>
-        /* CSS - التصميم */
-        body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            text-align: center;
-            background: #1e293b;
-            padding: 2rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            max-width: 90%;
-        }
-
-        h1 { color: #38bdf8; margin-bottom: 1rem; }
-
-        .video-box {
-            position: relative;
-            border: 4px solid #334155;
-            border-radius: 12px;
-            overflow: hidden;
-            background: #000;
-            line-height: 0;
-        }
-
-        video {
-            width: 100%;
-            max-width: 640px;
-            transform: scaleX(-1); /* مرآة لجعل الحركة طبيعية */
-        }
-
-        .controls {
-            margin-top: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-        }
-
-        button {
-            background: #0284c7;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-size: 1.1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover { background: #0369a1; }
-        button:disabled { background: #64748b; cursor: not-allowed; }
-
-        #status {
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 5px;
-            min-width: 200px;
-        }
-
-        .alert {
-            background: #ef4444;
-            animation: pulse 0.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
+        :root { --primary: #00d2ff; --bg: #0f172a; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .monitor-card { background: #1e293b; padding: 20px; border-radius: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 680px; text-align: center; border: 1px solid #334155; }
+        .video-container { position: relative; background: #000; border-radius: 10px; overflow: hidden; border: 3px solid #334155; }
+        video { width: 100%; transform: scaleX(-1); }
+        .overlay { position: absolute; top: 10px; left: 10px; background: rgba(255,0,0,0.7); padding: 5px 15px; border-radius: 5px; display: none; font-weight: bold; animation: blink 0.8s infinite; }
+        .controls { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
+        button { background: var(--primary); border: none; padding: 10px 25px; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { opacity: 0.8; transform: translateY(-2px); }
+        .sensitivity-info { font-size: 0.8rem; color: #94a3b8; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>نظام الإنذار الذكي 🛡️</h1>
-    
-    <div class="video-box" id="videoBox">
+<div class="monitor-card">
+    <h2 style="margin-top:0;">نظام الرصد الذكي v2.0</h2>
+    <div class="video-container" id="vBox">
+        <div class="overlay" id="alertLabel">⚠️ حركة مكتشفة</div>
         <video id="video" autoplay playsinline></video>
     </div>
-
+    
     <div class="controls">
-        <button id="startBtn">تشغيل كاميرا المراقبة</button>
-        <div id="status">الحالة: النظام متوقف</div>
-        <p style="font-size: 0.8rem; color: #94a3b8;">ملاحظة: سيصدر صوت إنذار عند رصد حركة كبيرة.</p>
+        <button id="startBtn">تفعيل النظام</button>
+        <div class="sensitivity-info">
+            دقة الرصد: <span id="precision">عالية (تجاهل الاهتزاز)</span>
+        </div>
     </div>
 </div>
 
-<canvas id="canvas" style="display:none;"></canvas>
+<canvas id="currCanvas" style="display:none;"></canvas>
+<canvas id="prevCanvas" style="display:none;"></canvas>
 
 <script>
-    /* JavaScript - البرمجة */
     const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    const startBtn = document.getElementById('startBtn');
-    const statusDiv = document.getElementById('status');
-    const videoBox = document.getElementById('videoBox');
+    const currCanvas = document.getElementById('currCanvas');
+    const prevCanvas = document.getElementById('prevCanvas');
+    const alertLabel = document.getElementById('alertLabel');
+    const vBox = document.getElementById('vBox');
 
-    let lastFrameData = null;
-    let isMonitoring = false;
+    let isRunning = false;
+    let lastFrame = null;
 
-    // 1. تشغيل الكاميرا
-    startBtn.onclick = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
-            isMonitoring = true;
-            startBtn.disabled = true;
-            statusDiv.innerText = "🔍 المراقبة نشطة الآن...";
-            statusDiv.style.color = "#4ade80";
-            
-            // البدء في تحليل الإطارات
-            requestAnimationFrame(analyzeFrame);
-        } catch (err) {
-            alert("خطأ: يرجى السماح بالوصول للكاميرا.");
-        }
+    document.getElementById('startBtn').onclick = async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        isRunning = true;
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('startBtn').innerText = "النظام يعمل...";
+        requestAnimationFrame(processFrame);
     };
 
-    // 2. تحليل الحركة
-    function analyzeFrame() {
-        if (!isMonitoring) return;
+    function processFrame() {
+        if (!isRunning) return;
 
-        // ضبط حجم الكانفاس ليتناسب مع الفيديو
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
+        const width = 160; // تقليل الأبعاد لمعالجة أسرع وأدق
+        const height = 120;
+        currCanvas.width = width;
+        currCanvas.height = height;
 
-        // رسم الصورة الحالية
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const currentFrame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const ctx = currCanvas.getContext('2d', {willReadFrequently: true});
+        ctx.drawImage(video, 0, 0, width, height);
+        
+        // 1. تحويل الصورة لرمادي وتقليل الضجيج (Grayscale & Blur effect)
+        const imgData = ctx.getImageData(0, 0, width, height);
+        const pixels = imgData.data;
+        
+        if (lastFrame) {
+            let movementScore = 0;
+            const threshold = 50; // العتبة اللونية لتجاهل اهتزاز الكاميرا الخفيف
 
-        if (lastFrameData) {
-            let diffPixels = 0;
-            const threshold = 40; // حساسية اللون
-            
-            // مقارنة البكسلات (نقارن كل 4 بكسلات لتسريع الأداء)
-            for (let i = 0; i < currentFrame.data.length; i += 16) {
-                const rDiff = Math.abs(currentFrame.data[i] - lastFrameData.data[i]);
-                const gDiff = Math.abs(currentFrame.data[i+1] - lastFrameData.data[i+1]);
-                const bDiff = Math.abs(currentFrame.data[i+2] - lastFrameData.data[i+2]);
-
-                if (rDiff + gDiff + bDiff > threshold) {
-                    diffPixels++;
+            for (let i = 0; i < pixels.length; i += 4) {
+                // حساب السطوع (Luminance)
+                const bright = (pixels[i] + pixels[i+1] + pixels[i+2]) / 3;
+                const lastBright = (lastFrame[i] + lastFrame[i+1] + lastFrame[i+2]) / 3;
+                
+                // حساب الفرق المطلق
+                const diff = Math.abs(bright - lastBright);
+                
+                if (diff > threshold) {
+                    movementScore++;
                 }
             }
 
-            // إذا تغير أكثر من 500 منطقة بكسل، نعتبرها حركة
-            if (diffPixels > 500) {
-                triggerAlarm();
+            // 2. تصفية النتائج: إذا كان التغيير في أكثر من 3% من الصورة وأقل من 50% (لتجنب اهتزاز الكاميرا الكلي)
+            const motionPercentage = (movementScore / (width * height)) * 100;
+            
+            if (motionPercentage > 2.5 && motionPercentage < 40) {
+                triggerAlert();
             } else {
-                resetAlarmVisuals();
+                stopAlert();
             }
         }
 
-        lastFrameData = currentFrame;
-        requestAnimationFrame(analyzeFrame);
+        lastFrame = new Uint8ClampedArray(pixels);
+        requestAnimationFrame(processFrame);
     }
 
-    // 3. إطلاق الإنذار
-    function triggerAlarm() {
-        statusDiv.innerText = "⚠️ تحذير: تم رصد حركة!";
-        statusDiv.classList.add('alert');
-        videoBox.style.borderColor = "#ef4444";
-        playBeep();
+    function triggerAlert() {
+        alertLabel.style.display = "block";
+        vBox.style.borderColor = "#ff4757";
+        playSystemSound(800);
     }
 
-    function resetAlarmVisuals() {
-        if (statusDiv.classList.contains('alert')) {
-            statusDiv.classList.remove('alert');
-            statusDiv.innerText = "🔍 المراقبة نشطة الآن...";
-            videoBox.style.borderColor = "#334155";
-        }
+    function stopAlert() {
+        alertLabel.style.display = "none";
+        vBox.style.borderColor = "#334155";
     }
 
-    // 4. توليد صوت إنذار برمجي
+    // صوت إنذار ترددي
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playBeep() {
+    function playSystemSound(freq) {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setTargetAtTime(0.05, audioCtx.currentTime, 0.01);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-        
         osc.start();
         osc.stop(audioCtx.currentTime + 0.1);
     }
 </script>
-
 </body>
 </html>
