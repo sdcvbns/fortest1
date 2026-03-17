@@ -2,128 +2,120 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>نظام مراقبة سَرمد الاحترافي 🛡️</title>
+    <title>نظام مراقبة سَرمد المطور v3.0</title>
     <style>
-        :root { --primary: #00d2ff; --bg: #0f172a; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .monitor-card { background: #1e293b; padding: 20px; border-radius: 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); width: 680px; text-align: center; border: 1px solid #334155; }
-        .video-container { position: relative; background: #000; border-radius: 10px; overflow: hidden; border: 3px solid #334155; }
-        video { width: 100%; transform: scaleX(-1); }
-        .overlay { position: absolute; top: 10px; left: 10px; background: rgba(255,0,0,0.7); padding: 5px 15px; border-radius: 5px; display: none; font-weight: bold; animation: blink 0.8s infinite; }
-        .controls { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
-        button { background: var(--primary); border: none; padding: 10px 25px; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { opacity: 0.8; transform: translateY(-2px); }
-        .sensitivity-info { font-size: 0.8rem; color: #94a3b8; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+        body { background: #0f172a; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: #1e293b; padding: 25px; border-radius: 20px; text-align: center; border: 2px solid #334155; width: 640px; }
+        .v-container { position: relative; border-radius: 10px; overflow: hidden; border: 4px solid #334155; line-height: 0; }
+        video { width: 100%; filter: contrast(1.2); }
+        .status-bar { margin-top: 15px; padding: 10px; border-radius: 8px; background: #334155; font-weight: bold; }
+        .alarm-on { background: #ef4444; animation: shake 0.2s infinite; }
+        @keyframes shake { 0% {transform: translateX(0)} 25% {transform: translateX(5px)} 75% {transform: translateX(-5px)} 100% {transform: translateX(0)} }
+        .slider-container { margin: 15px 0; font-size: 0.9rem; color: #94a3b8; }
+        button { background: #0ea5e9; border: none; padding: 12px 25px; border-radius: 8px; color: white; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="monitor-card">
-    <h2 style="margin-top:0;">نظام الرصد الذكي v2.0</h2>
-    <div class="video-container" id="vBox">
-        <div class="overlay" id="alertLabel">⚠️ حركة مكتشفة</div>
+<div class="card">
+    <h2>الرصد الذكي (مضاد للإنذار الكاذب) 🛡️</h2>
+    <div class="v-container" id="vBox">
         <video id="video" autoplay playsinline></video>
     </div>
     
-    <div class="controls">
-        <button id="startBtn">تفعيل النظام</button>
-        <div class="sensitivity-info">
-            دقة الرصد: <span id="precision">عالية (تجاهل الاهتزاز)</span>
-        </div>
+    <div class="slider-container">
+        حساسية الرصد (كلما زاد الرقم قل الإنذار الكاذب): 
+        <input type="range" id="sensRange" min="10" max="100" value="40">
+        <span id="sensVal">40</span>
     </div>
+
+    <button id="startBtn">بدء المراقبة</button>
+    <div class="status-bar" id="status">النظام: جاهز</div>
 </div>
 
-<canvas id="currCanvas" style="display:none;"></canvas>
-<canvas id="prevCanvas" style="display:none;"></canvas>
+<canvas id="procCanvas" style="display:none;"></canvas>
 
 <script>
     const video = document.getElementById('video');
-    const currCanvas = document.getElementById('currCanvas');
-    const prevCanvas = document.getElementById('prevCanvas');
-    const alertLabel = document.getElementById('alertLabel');
-    const vBox = document.getElementById('vBox');
+    const status = document.getElementById('status');
+    const sensRange = document.getElementById('sensRange');
+    const sensVal = document.getElementById('sensVal');
+    const canvas = document.getElementById('procCanvas');
+    const ctx = canvas.getContext('2d', {willReadFrequently: true});
 
-    let isRunning = false;
-    let lastFrame = null;
+    let prevData = null;
+    let alarmCounter = 0; // لضمان أن الحركة حقيقية وليست ومضة
+    let isActive = false;
+
+    sensRange.oninput = () => sensVal.innerText = sensRange.value;
 
     document.getElementById('startBtn').onclick = async () => {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-        isRunning = true;
-        document.getElementById('startBtn').disabled = true;
-        document.getElementById('startBtn').innerText = "النظام يعمل...";
-        requestAnimationFrame(processFrame);
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            isActive = true;
+            status.innerText = "النظام: جاري المعايرة...";
+            setTimeout(() => { status.innerText = "النظام: مراقبة نشطة ✅"; }, 2000);
+            process();
+        } catch(e) { alert("فشل الوصول للكاميرا"); }
     };
 
-    function processFrame() {
-        if (!isRunning) return;
+    function process() {
+        if (!isActive) return;
 
-        const width = 160; // تقليل الأبعاد لمعالجة أسرع وأدق
-        const height = 120;
-        currCanvas.width = width;
-        currCanvas.height = height;
-
-        const ctx = currCanvas.getContext('2d', {willReadFrequently: true});
-        ctx.drawImage(video, 0, 0, width, height);
+        // تصغير الصورة جداً لقتل "الضجيج" النمشي (Noise)
+        canvas.width = 80; 
+        canvas.height = 60;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        // 1. تحويل الصورة لرمادي وتقليل الضجيج (Grayscale & Blur effect)
-        const imgData = ctx.getImageData(0, 0, width, height);
-        const pixels = imgData.data;
-        
-        if (lastFrame) {
-            let movementScore = 0;
-            const threshold = 50; // العتبة اللونية لتجاهل اهتزاز الكاميرا الخفيف
+        const currentData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
 
-            for (let i = 0; i < pixels.length; i += 4) {
-                // حساب السطوع (Luminance)
-                const bright = (pixels[i] + pixels[i+1] + pixels[i+2]) / 3;
-                const lastBright = (lastFrame[i] + lastFrame[i+1] + lastFrame[i+2]) / 3;
+        if (prevData) {
+            let change = 0;
+            const threshold = parseInt(sensRange.value);
+
+            for (let i = 0; i < currentData.length; i += 4) {
+                // مقارنة السطوع فقط
+                const currAvg = (currentData[i] + currentData[i+1] + currentData[i+2]) / 3;
+                const prevAvg = (prevData[i] + prevData[i+1] + prevData[i+2]) / 3;
                 
-                // حساب الفرق المطلق
-                const diff = Math.abs(bright - lastBright);
-                
-                if (diff > threshold) {
-                    movementScore++;
+                if (Math.abs(currAvg - prevAvg) > threshold) {
+                    change++;
                 }
             }
 
-            // 2. تصفية النتائج: إذا كان التغيير في أكثر من 3% من الصورة وأقل من 50% (لتجنب اهتزاز الكاميرا الكلي)
-            const motionPercentage = (movementScore / (width * height)) * 100;
-            
-            if (motionPercentage > 2.5 && motionPercentage < 40) {
-                triggerAlert();
+            // يجب أن تتغير 5% من الصورة على الأقل ليتم اعتبارها حركة
+            if (change > (canvas.width * canvas.height * 0.05)) {
+                alarmCounter++;
             } else {
-                stopAlert();
+                alarmCounter = Math.max(0, alarmCounter - 1);
+            }
+
+            // الإنذار لا يفتح إلا إذا استمرت الحركة لـ 5 إطارات متتالية (نصف ثانية تقريباً)
+            if (alarmCounter > 5) {
+                status.innerText = "⚠️ تم رصد حركة حقيقية!";
+                status.classList.add('alarm-on');
+                playSimpleTone();
+            } else {
+                status.innerText = "النظام: مراقبة نشطة ✅";
+                status.classList.remove('alarm-on');
             }
         }
 
-        lastFrame = new Uint8ClampedArray(pixels);
-        requestAnimationFrame(processFrame);
+        prevData = currentData;
+        // تقليل سرعة المعالجة لـ 15 إطار في الثانية لزيادة الدقة وتقليل العبء
+        setTimeout(() => requestAnimationFrame(process), 66); 
     }
 
-    function triggerAlert() {
-        alertLabel.style.display = "block";
-        vBox.style.borderColor = "#ff4757";
-        playSystemSound(800);
-    }
-
-    function stopAlert() {
-        alertLabel.style.display = "none";
-        vBox.style.borderColor = "#334155";
-    }
-
-    // صوت إنذار ترددي
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playSystemSound(freq) {
+    function playSimpleTone() {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setTargetAtTime(0.05, audioCtx.currentTime, 0.01);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        const g = audioCtx.createGain();
+        osc.connect(g);
+        g.connect(audioCtx.destination);
+        g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        osc.frequency.value = 600;
         osc.start();
         osc.stop(audioCtx.currentTime + 0.1);
     }
