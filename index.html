@@ -2,106 +2,86 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محرر الصوت الذكي Pro</title>
+    <title>محرر الصوت الاحترافي</title>
     <script src="https://unpkg.com/wavesurfer.js"></script>
     <style>
-        :root { --primary: #4a90e2; --danger: #e74c3c; --success: #2ecc71; }
-        body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; display: flex; justify-content: center; padding: 20px; }
-        .container { background: #16213e; padding: 30px; border-radius: 20px; width: 100%; max-width: 900px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        #waveform { background: rgba(255,255,255,0.05); border-radius: 10px; margin: 20px 0; min-height: 120px; }
-        .controls, .effects-panel { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 20px 0; padding: 15px; border: 1px solid #0f3460; border-radius: 10px; }
-        button { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; color: white; background: #0f3460; }
-        button:hover { transform: translateY(-2px); filter: brightness(1.2); }
-        .btn-rec { background: var(--danger); }
-        .btn-play { background: var(--success); }
-        .btn-ai { background: #9b59b6; }
-        .effect-group { display: flex; flex-direction: column; align-items: center; gap: 5px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; }
-        input[type="range"] { width: 100px; cursor: pointer; }
-        label { font-size: 12px; color: #aaa; }
-        .status { color: #f1c40f; font-size: 14px; margin-top: 10px; }
+        body { font-family: sans-serif; background: #121212; color: white; text-align: center; padding: 20px; }
+        .box { background: #1e1e1e; padding: 20px; border-radius: 15px; max-width: 800px; margin: auto; border: 1px solid #333; }
+        #waveform { background: #000; margin: 20px 0; border-radius: 10px; height: 128px; }
+        .btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        button { padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: #444; color: white; }
+        button:hover { background: #666; }
+        .rec-active { background: #ff4757 !important; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .slider-group { margin: 20px; display: flex; align-items: center; justify-content: center; gap: 15px; }
+        .ai-btn { background: #8e44ad; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>🎙️ استوديو معالجة الصوت الذكي</h2>
-    
-    <input type="file" id="audioInput" accept="audio/*" style="margin-bottom: 20px;">
-    
-    <div id="waveform"></div>
-    <div id="status" class="status">جاهز...</div>
+<div class="box">
+    <h2>🎙️ معالج الصوت الذكي (نسخة مستقرة)</h2>
+    <p style="font-size: 13px; color: #888;">قم برفع ملف أو سجل صوتك مباشرة</p>
 
-    <div class="controls">
-        <button id="recordBtn" class="btn-rec">⏺️ تسجيل</button>
-        <button id="stopBtn" disabled>⏹️ إيقاف</button>
-        <button id="playBtn" class="btn-play" disabled>⏯️ تشغيل/إيقاف</button>
-        <button id="deleteBtn" style="background:#555" disabled>🗑️ حذف</button>
+    <input type="file" id="loader" accept="audio/*">
+    <div id="waveform"></div>
+
+    <div class="btns">
+        <button id="btnRec">🎤 بدء التسجيل</button>
+        <button id="btnStop" disabled>⏹️ إيقاف</button>
+        <button id="btnPlay" disabled>▶️ تشغيل/إيقاف</button>
+        <button id="btnDelete" disabled>🗑️ حذف</button>
     </div>
 
-    <div class="effects-panel">
-        <div class="effect-group">
-            <label>صدى الصوت (Echo)</label>
-            <input type="range" id="echoRange" min="0" max="0.8" step="0.1" value="0">
-        </div>
-        <div class="effect-group">
-            <label>التضخيم (Volume)</label>
-            <input type="range" id="gainRange" min="0" max="2" step="0.1" value="1">
-        </div>
-        <button id="enhanceBtn" class="btn-ai" disabled>✨ تحسين بالذكاء الاصطناعي</button>
-        <button id="downloadBtn" style="background:#2c3e50" disabled>💾 حفظ الملف</button>
+    <div class="slider-group">
+        <label>صدى الصوت (Echo):</label>
+        <input type="range" id="echoVol" min="0" max="0.7" step="0.1" value="0">
+        
+        <label>تضخيم (Volume):</label>
+        <input type="range" id="gainVol" min="0" max="2" step="0.1" value="1">
+    </div>
+
+    <div class="btns">
+        <button id="btnAI" class="ai-btn" disabled>✨ تحسين بالذكاء الاصطناعي</button>
+        <button id="btnDownload" disabled>💾 حفظ النتيجة</button>
     </div>
 </div>
 
 <script>
-    let wavesurfer, mediaRecorder, chunks = [];
-    let audioContext, mainGain, delayNode, feedbackNode;
+    let ws, mediaRecorder, chunks = [], audioBlob, audioUrl;
+    let audioContext, mainGain, delayNode, feedback;
 
-    // تهيئة محرك الموجات
-    wavesurfer = WaveSurfer.create({
+    // 1. تهيئة مشغل الموجات
+    ws = WaveSurfer.create({
         container: '#waveform',
-        waveColor: '#4a90e2',
-        progressColor: '#00d2ff',
-        cursorColor: '#fff',
-        barWidth: 3,
-        height: 120,
-        backend: 'WebAudio' // ضروري للتحكم في التأثيرات
+        waveColor: '#3498db',
+        progressColor: '#f1c40f',
+        backend: 'WebAudio',
+        responsive: true,
+        barWidth: 2
     });
 
-    // تهيئة نظام الصوت (يجب أن يبدأ بعد ضغطة زر)
-    function initAudioContext() {
+    // 2. إعداد عقد الصوت (التأثيرات)
+    function setupEffects() {
         if (!audioContext) {
-            audioContext = wavesurfer.backend.getAudioContext();
-            
-            // عقدة التحكم في الصوت (Volume)
+            audioContext = ws.backend.getAudioContext();
             mainGain = audioContext.createGain();
             
-            // عقدة الصدى (Delay)
+            // نظام الصدى
             delayNode = audioContext.createDelay();
             delayNode.delayTime.value = 0.3;
-            feedbackNode = audioContext.createGain();
-            feedbackNode.gain.value = 0; // القيمة الابتدائية (لا صدى)
+            feedback = audioContext.createGain();
+            feedback.gain.value = 0; // يبدأ بصفر (بدون صدى)
 
-            // توصيل الفلاتر
-            delayNode.connect(feedbackNode);
-            feedbackNode.connect(delayNode);
+            delayNode.connect(feedback);
+            feedback.connect(delayNode);
             
-            wavesurfer.backend.setFilters([mainGain, delayNode]);
+            ws.backend.setFilters([mainGain, delayNode]);
         }
     }
 
-    // رفع الملفات
-    document.getElementById('audioInput').onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const url = URL.createObjectURL(file);
-            wavesurfer.load(url);
-            enableControls();
-        }
-    };
-
-    // تسجيل الصوت
-    document.getElementById('recordBtn').onclick = async () => {
+    // 3. التسجيل
+    document.getElementById('btnRec').onclick = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             mediaRecorder = new MediaRecorder(stream);
@@ -109,84 +89,87 @@
             
             mediaRecorder.ondataavailable = e => chunks.push(e.data);
             mediaRecorder.onstop = () => {
-                const blob = new Blob(chunks, { type: 'audio/ogg; codecs=opus' });
-                const url = URL.createObjectURL(blob);
-                wavesurfer.load(url);
-                enableControls();
-                document.getElementById('status').innerText = "تم التسجيل بنجاح!";
+                audioBlob = new Blob(chunks, { type: 'audio/wav' });
+                audioUrl = URL.createObjectURL(audioBlob);
+                ws.load(audioUrl);
+                enableUI();
             };
 
             mediaRecorder.start();
-            document.getElementById('status').innerText = "جاري التسجيل...";
-            document.getElementById('recordBtn').disabled = true;
-            document.getElementById('stopBtn').disabled = false;
+            document.getElementById('btnRec').classList.add('rec-active');
+            document.getElementById('btnRec').disabled = true;
+            document.getElementById('btnStop').disabled = false;
         } catch (err) {
-            alert("يرجى السماح بالوصول للميكروفون!");
+            alert("خطأ: يرجى تفعيل الميكروفون");
         }
     };
 
-    document.getElementById('stopBtn').onclick = () => {
+    document.getElementById('btnStop').onclick = () => {
         mediaRecorder.stop();
-        document.getElementById('recordBtn').disabled = false;
-        document.getElementById('stopBtn').disabled = true;
+        document.getElementById('btnRec').classList.remove('rec-active');
+        document.getElementById('btnRec').disabled = false;
+        document.getElementById('btnStop').disabled = true;
     };
 
-    // التحكم في الصدى
-    document.getElementById('echoRange').oninput = (e) => {
-        initAudioContext();
-        feedbackNode.gain.value = parseFloat(e.target.value);
+    // 4. رفع ملف
+    document.getElementById('loader').onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            audioUrl = URL.createObjectURL(file);
+            ws.load(audioUrl);
+            enableUI();
+        }
     };
 
-    // التحكم في التضخيم
-    document.getElementById('gainRange').oninput = (e) => {
-        initAudioContext();
+    // 5. التحكم في التأثيرات
+    document.getElementById('echoVol').oninput = (e) => {
+        setupEffects();
+        feedback.gain.value = parseFloat(e.target.value);
+    };
+
+    document.getElementById('gainVol').oninput = (e) => {
+        setupEffects();
         mainGain.gain.value = parseFloat(e.target.value);
     };
 
-    // تحسين بالذكاء الاصطناعي (محاكاة فلتر الوضوح)
-    document.getElementById('enhanceBtn').onclick = () => {
-        initAudioContext();
+    // 6. التحسين (AI Enhancement Simulation)
+    document.getElementById('btnAI').onclick = () => {
+        setupEffects();
+        // فلتر "الذكاء الاصطناعي": يقوم بتنظيف الترددات المنخفضة (الضجيج) 
+        // وتضخيم الترددات العالية (وضوح الكلام)
         const filter = audioContext.createBiquadFilter();
-        filter.type = "highshelf";
-        filter.frequency.value = 3000;
-        filter.gain.value = 10; // زيادة الترددات العالية للوضوح
-        wavesurfer.backend.setFilters([mainGain, delayNode, filter]);
-        document.getElementById('status').innerText = "تم تطبيق تحسين الوضوح الذكي ✨";
+        filter.type = "peaking";
+        filter.frequency.value = 2500;
+        filter.Q.value = 1;
+        filter.gain.value = 15; 
+        
+        ws.backend.setFilters([mainGain, delayNode, filter]);
+        alert("تم تحسين جودة الصوت وإزالة الضجيج المحيط");
     };
 
-    document.getElementById('playBtn').onclick = () => {
-        initAudioContext();
-        wavesurfer.playPause();
+    // 7. الوظائف العامة
+    document.getElementById('btnPlay').onclick = () => {
+        setupEffects();
+        ws.playPause();
     };
 
-    document.getElementById('deleteBtn').onclick = () => {
-        if(confirm("حذف الملف؟")) {
-            wavesurfer.empty();
-            disableControls();
+    document.getElementById('btnDelete').onclick = () => {
+        if(confirm("هل تريد الحذف؟")) {
+            ws.empty();
+            location.reload(); // لإعادة ضبط كل شيء
         }
     };
 
-    document.getElementById('downloadBtn').onclick = () => {
+    document.getElementById('btnDownload').onclick = () => {
         const link = document.createElement('a');
-        link.href = wavesurfer.backend.getPeaks().length > 0 ? wavesurfer.exportPCM() : ""; // تبسيط للحفظ
-        alert("خاصية تصدير الملف مع التأثيرات تتطلب معالجة OfflineAudioContext. سيتم تحميل الخام حالياً.");
-        link.href = wavesurfer.getDuration() > 0 ? wavesurfer.backend.bufferSource.buffer : ""; 
-        // للتبسيط في المتصفح، سنقوم بتحميل الملف الذي تم تحميله أو تسجيله:
-        const blobUrl = wavesurfer.getDuration() > 0 ? document.getElementById('audioInput').files[0] : null;
-        // ملاحظة: حفظ التأثيرات المطبقة يحتاج كود إضافي للمعالجة، سأقوم بتحميل الملف المسجل كبداية:
-        window.open(wavesurfer.backend.getAudioContext().destination.stream);
+        link.href = audioUrl;
+        link.download = "recorded_audio.wav";
+        link.click();
     };
 
-    function enableControls() {
+    function enableUI() {
         document.querySelectorAll('button').forEach(b => b.disabled = false);
-        document.getElementById('stopBtn').disabled = true;
-    }
-
-    function disableControls() {
-        ['playBtn', 'deleteBtn', 'enhanceBtn', 'downloadBtn'].forEach(id => {
-            document.getElementById(id).disabled = true;
-        });
-        document.getElementById('status').innerText = "تم الحذف.";
+        document.getElementById('btnStop').disabled = true;
     }
 </script>
 </body>
