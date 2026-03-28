@@ -3,167 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مبيعات طالب Pro - النظام الملكي الفاخر</title>
+    <title>مبيعات طالب Pro - الإصدار المستقر</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #b8860b; /* ذهبي عميق وبارز */
+            --primary: #b8860b;
             --primary-light: #d4af37;
-            --secondary: #1e293b; /* كحلي غامق للأزرار */
-            --bg-gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
+            --secondary: #1e293b;
+            --bg-body: #f4f7f9;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --border: #e2e8f0;
             --success: #10b981;
             --danger: #ef4444;
-            --glass: rgba(255, 255, 255, 0.8);
         }
 
-        /* حماية ومنع النسخ */
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent;
-            user-select: none; 
-            -webkit-user-select: none;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
 
         body {
             font-family: 'Noto Kufi Arabic', sans-serif;
-            background: var(--bg-gradient);
-            background-attachment: fixed;
-            margin: 0; padding: 15px;
+            background-color: var(--bg-body);
+            margin: 0; padding: 10px;
             color: var(--text-dark);
             display: flex; justify-content: center; min-height: 100vh;
         }
 
         .container {
-            width: 100%; max-width: 900px;
+            width: 100%; max-width: 850px;
             background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 30px; padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255,255,255,0.5);
-            animation: containerSpawn 0.6s ease-out;
-            position: relative; overflow: hidden;
+            border-radius: 25px; padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: 1px solid #fff;
+            animation: fadeIn 0.5s ease;
         }
 
-        @keyframes containerSpawn { 
-            from { opacity: 0; transform: translateY(20px) scale(0.98); } 
-            to { opacity: 1; transform: translateY(0) scale(1); } 
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .header {
-            text-align: center; border-bottom: 4px solid var(--primary);
-            padding-bottom: 20px; margin-bottom: 25px;
-            position: relative;
-        }
+        .header { text-align: center; border-bottom: 4px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; }
+        #shopTitle { font-size: 1.8rem; font-weight: 800; color: var(--primary); margin: 0; }
 
-        #shopTitle {
-            font-size: 2.2rem; font-weight: 800; color: var(--primary);
-            margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            animation: titleGlow 2s infinite alternate;
-        }
-
-        @keyframes titleGlow { from { text-shadow: 2px 2px 4px rgba(0,0,0,0.1); } to { text-shadow: 2px 2px 10px rgba(184, 134, 11, 0.3); } }
-
-        /* نظام التبويب (Tabs) الفاخر */
-        .tabs { display: flex; gap: 15px; margin-bottom: 30px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
         .tab-btn {
-            flex: 1; padding: 18px; border: none; border-radius: 15px;
-            font-family: 'Noto Kufi Arabic'; font-weight: 700; font-size: 1rem;
-            cursor: pointer; background: var(--glass); color: var(--secondary);
-            transition: all 0.3s ease; border: 1px solid var(--border-color);
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-        }
-        .tab-btn:hover { background: #fff; transform: translateY(-2px); }
-        .tab-btn.active { 
-            background: var(--primary); color: white; 
-            box-shadow: 0 8px 20px rgba(184, 134, 11, 0.3); 
-            border-color: var(--primary);
-        }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: tabFadeIn 0.4s ease; }
-
-        @keyframes tabFadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
-
-        /* التنسيقات العامة للحقول बॉक्स */
-        .section-box {
-            background: #fff; padding: 25px; border-radius: 20px;
-            border: 1px solid var(--border-color); margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            flex: 1; padding: 15px; border: none; border-radius: 12px;
+            font-family: 'Noto Kufi Arabic'; font-weight: 700;
+            cursor: pointer; background: #e2e8f0; color: var(--secondary);
             transition: 0.3s;
         }
-        .section-box:hover { border-color: var(--primary-light); box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 5px 15px rgba(184, 134, 11, 0.3); }
 
-        .section-title {
-            font-weight: 700; color: var(--primary); font-size: 1.2rem;
-            margin-bottom: 20px; border-right: 4px solid var(--primary); padding-right: 10px;
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .section-box {
+            background: #fdfdfd; padding: 20px; border-radius: 15px;
+            border: 1px solid var(--border); margin-bottom: 15px;
         }
 
-        .row { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 15px; }
-        .col { flex: 1; min-width: 280px; }
+        .section-title { font-weight: 700; color: var(--primary); margin-bottom: 15px; }
+
+        .row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 10px; }
+        .col { flex: 1; min-width: 250px; }
 
         input, select, textarea {
-            width: 100%; padding: 16px; border: 2px solid var(--border-color);
-            border-radius: 14px; font-size: 16px; font-family: 'Noto Kufi Arabic';
-            color: var(--text-dark); background: #fdfdfd;
-            transition: all 0.3s; outline: none;
+            width: 100%; padding: 14px; border: 2px solid var(--border);
+            border-radius: 12px; font-size: 16px; font-family: 'Noto Kufi Arabic';
+            outline: none; transition: 0.3s;
         }
+        input:focus { border-color: var(--primary); background: #fff; }
 
-        input:focus, select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(184, 134, 11, 0.15);
-            background: #fff;
-        }
-
-        /* الأزرار الملكية */
         .btn-main {
-            width: 100%; padding: 20px; border: none; border-radius: 18px;
-            background: linear-gradient(45deg, var(--primary), var(--primary-light));
-            color: white; font-weight: 800; font-size: 1.2rem;
-            cursor: pointer; margin-top: 15px;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(184, 134, 11, 0.4);
-            display: flex; align-items: center; justify-content: center; gap: 12px;
+            width: 100%; padding: 18px; border: none; border-radius: 15px;
+            background: var(--primary); color: white; font-weight: 800;
+            font-size: 18px; cursor: pointer; margin-top: 10px;
         }
-        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(184, 134, 11, 0.5); }
-        .btn-main:active { transform: scale(0.98); }
 
-        .btn-search {
-            padding: 16px 35px; border: none; border-radius: 14px;
-            background: var(--secondary); color: white;
-            font-weight: 700; cursor: pointer; transition: 0.3s;
+        /* تنسيق قائمة السجل */
+        #scrollContainer {
+            max-height: 550px; overflow-y: auto;
+            padding: 5px; border-radius: 10px;
         }
-        .btn-search:hover { background: #0f172a; transform: scale(1.03); }
 
-        /* بطاقة نتيجة البحث الفاخرة */
         .result-card {
-            background: #fff; border: 2px solid var(--border-color);
-            border-radius: 18px; padding: 20px; margin-top: 20px;
-            border-right: 8px solid var(--primary);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            animation: cardSlideIn 0.4s ease-out;
-            text-align: right; transition: 0.3s;
-        }
-        .result-card:hover { transform: translateX(-5px); border-color: var(--primary-light); }
-
-        @keyframes cardSlideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-
-        .result-header {
-            font-size: 1.1rem; font-weight: 800; color: var(--primary);
-            border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 10px;
-            display: flex; justify-content: space-between; align-items: center;
+            background: #fff; border: 1px solid var(--border);
+            border-radius: 15px; padding: 15px; margin-bottom: 15px;
+            border-right: 6px solid var(--primary);
+            text-align: right; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        .result-actions { display: flex; gap: 12px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
-        .btn-edit { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; }
-        .btn-delete { background: var(--danger); color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; }
-        .btn-edit:hover, .btn-delete:hover { opacity: 0.9; transform: scale(1.03); }
+        .result-header { font-weight: 800; color: var(--primary); border-bottom: 1px solid #eee; margin-bottom: 10px; padding-bottom: 5px; }
+
+        .result-actions { display: flex; gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px solid #eee; }
+        .btn-edit { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .btn-delete { background: var(--danger); color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 700; cursor: pointer; }
 
         @media print { .no-print { display: none !important; } }
-        @media (max-width: 600px) { .col { min-width: 100%; } .container { padding: 20px; } #shopTitle { font-size: 1.8rem; } .tabs { flex-direction: column; gap: 8px; } }
+        @media (max-width: 600px) { .col { min-width: 100%; } .tabs { flex-direction: column; } }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -171,17 +105,18 @@
 <div class="container">
     <div class="header">
         <div id="shopTitle"></div>
-        <button class="no-print" onclick="editShopName()" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:12px; font-weight:bold; margin-top:8px;">تعديل الاسم</button>
+        <button class="no-print" onclick="editShopName()" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:12px; font-weight:bold;">تعديل الاسم</button>
     </div>
 
     <div class="tabs no-print">
-        <button class="tab-btn active" onclick="showTab('entry')">تسجيل صيانة جديد</button>
-        <button class="tab-btn" onclick="showTab('archive')">سجل الزبائن والأرشيف</button>
+        <button class="tab-btn active" id="tab1" onclick="showTab('entry')">تسجيل صيانة جديد</button>
+        <button class="tab-btn" id="tab2" onclick="openArchive()">سجل الزبائن والأرشيف</button>
     </div>
 
     <div id="entry" class="tab-content active">
-        <input type="hidden" id="editRowIdx"> <div class="section-box">
-            <div class="section-title">زبون وجهاز جديد</div>
+        <input type="hidden" id="editRowIdx">
+        <div class="section-box">
+            <div class="section-title">بيانات الزبون والجهاز</div>
             <div class="row">
                 <div class="col"><input type="text" id="custName" placeholder="اسم الزبون الكامل"></div>
                 <div class="col"><input type="tel" id="custPhone" placeholder="رقم الهاتف"></div>
@@ -190,25 +125,19 @@
                 <div class="col">
                     <select id="brand">
                         <option value="" disabled selected>الشركة المصنعة</option>
-                        <option>سامسونج</option><option>هونر</option><option>هواوي</option>
-                        <option>تكنو</option><option>انفنكس</option><option>ريلمي</option>
-                        <option>بوكو</option><option>ايتل</option><option>موتريلا</option>
-                        <option>أخرى</option>
+                        <option>سامسونج</option><option>هونر</option><option>هواوي</option><option>تكنو</option><option>انفنكس</option><option>ريلمي</option><option>بوكو</option><option>ايتل</option><option>موتريلا</option><option>أخرى</option>
                     </select>
                 </div>
                 <div class="col"><input type="text" id="phoneModel" placeholder="موديل الجهاز"></div>
             </div>
         </div>
         <div class="section-box">
-            <div class="section-title">تفاصيل العطل والحساب</div>
+            <div class="section-title">الحسابات</div>
             <div class="row">
                 <div class="col">
                     <select id="issueType">
                         <option value="" disabled selected>نوع العطل</option>
-                        <option>شاشة</option><option>قاعدة</option><option>بطارية</option>
-                        <option>سماعة</option><option>فلاتة شحن</option><option>ظهر</option>
-                        <option>معالج</option><option>هيكل</option><option>ازرار</option>
-                        <option>غير ذلك</option>
+                        <option>شاشة</option><option>قاعدة</option><option>بطارية</option><option>سماعة</option><option>فلاتة شحن</option><option>ظهر</option><option>معالج</option><option>هيكل</option><option>ازرار</option>
                     </select>
                 </div>
                 <div class="col">
@@ -218,48 +147,83 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col"><input type="number" id="price" placeholder="المبلغ الكلي الكلي" oninput="autoDivide()"></div>
-                <div class="col"><input type="number" id="halfPrice" placeholder="النصف (تلقائي)" readonly style="background:#fff9e6; color:var(--primary); font-weight:bold; border-style:dashed;"></div>
+                <div class="col"><input type="number" id="price" placeholder="المبلغ الكلي" oninput="autoDivide()"></div>
+                <div class="col"><input type="number" id="halfPrice" placeholder="النصف" readonly style="background:#fffbe6;"></div>
             </div>
         </div>
-        <textarea id="notes" rows="3" placeholder="ملاحظات إضافية..." style="margin-bottom:15px;"></textarea>
-        <button class="btn-main no-print" onclick="submitData()" id="mainBtn">حفظ وطباعة </button>
+        <textarea id="notes" rows="2" placeholder="ملاحظات..." style="margin-bottom:15px;"></textarea>
+        <button class="btn-main no-print" onclick="submitData()" id="mainBtn">حفظ وطباعة</button>
     </div>
 
     <div id="archive" class="tab-content">
         <div class="section-box">
-            <div class="section-title">بحث في السجلات</div>
-            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                <div style="flex: 1;"><input type="text" id="searchName" placeholder="ابحث باسم الزبون..." style="margin-bottom:0"></div>
-                <button class="btn-search" onclick="searchCustomer()">بحث</button>
-            </div>
+            <div class="section-title">بحث ذكي (فلترة فورية)</div>
+            <input type="text" id="smartSearch" placeholder="ابحث باسم الزبون أو موديل الهاتف..." oninput="filterArchive()">
         </div>
-        <div id="searchResults"></div>
+        <div id="scrollContainer">
+            <div id="searchResults"></div>
+        </div>
     </div>
 </div>
 
 <script>
-    // الرابط الجديد الخاص بك مدمج هنا
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5uMIaD2PXkTnqRU4kVZy2ZI2wGPtXeiYzo6MbNuFcYjv_AI4wAgJ9NcqkFZOP8uN5/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzErXHfU-e7IcZPR0hZUA3O0If01CBToxW2EeCB6OMfcbmvOLR_1smB_L5IHMbnyZj/exec";
+    let allData = [];
 
     window.onload = () => {
         const n = localStorage.getItem('sarmad_pro_v6');
         if (n) document.getElementById('shopTitle').innerText = n;
-        // تفعيل أنيميشن عند الفتح
-        document.querySelector('.container').style.opacity = 1;
     };
 
     function showTab(id) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        event.currentTarget.classList.add('active');
+        if(id === 'entry') document.getElementById('tab1').classList.add('active');
+        else document.getElementById('tab2').classList.add('active');
     }
 
-    function editShopName() {
-        const current = localStorage.getItem('sarmad_pro_v6') || "";
-        const n = prompt("اسم المحل الجديد:", current);
-        if(n) { localStorage.setItem('sarmad_pro_v6', n); document.getElementById('shopTitle').innerText = n; }
+    async function openArchive() {
+        showTab('archive');
+        const resDiv = document.getElementById('searchResults');
+        resDiv.innerHTML = "<p style='text-align:center; color:var(--primary);'>جاري تحميل السجلات السابقة... 📡</p>";
+        
+        try {
+            const r = await fetch(SCRIPT_URL + "?name=");
+            allData = await r.json();
+            displayResults(allData);
+        } catch(e) {
+            resDiv.innerHTML = "<p style='text-align:center; color:red;'>فشل في الاتصال بالقاعدة.</p>";
+        }
+    }
+
+    function displayResults(data) {
+        const resDiv = document.getElementById('searchResults');
+        if (!data || data.length === 0) {
+            resDiv.innerHTML = "<p style='text-align:center;'>لا توجد بيانات متاحة.</p>";
+            return;
+        }
+        resDiv.innerHTML = data.map(i => `
+            <div class="result-card">
+                <div class="result-header">زبون: ${i.customer}</div>
+                <b>التاريخ:</b> ${i.date}<br>
+                <b>الجهاز:</b> ${i.phoneModel} (${i.brand})<br>
+                <b>العطل:</b> ${i.issue} | <b>السعر:</b> ${i.price} | <b>${i.payment}</b>
+                <div class="result-actions no-print">
+                    <button class="btn-edit" onclick='fillForEdit(${JSON.stringify(i).replace(/'/g, "&apos;")})'>تعديل</button>
+                    <button class="btn-delete" onclick="deleteItem(${i.rowIdx})">حذف</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function filterArchive() {
+        const query = document.getElementById('smartSearch').value.toLowerCase();
+        const filtered = allData.filter(i => 
+            i.customer.toLowerCase().includes(query) || 
+            i.phoneModel.toLowerCase().includes(query)
+        );
+        displayResults(filtered);
     }
 
     function autoDivide() {
@@ -284,42 +248,15 @@
             notes: document.getElementById('notes').value
         };
 
-        if(!data.customerName || !data.price) return alert(" يرجى إكمال البيانات الأساسية!");
-        
-        btn.disabled = true; btn.innerText = "جاري الحفظ... ";
+        if(!data.customerName || !data.price) return alert("أكمل البيانات!");
+        btn.disabled = true; btn.innerText = "جاري الحفظ...";
         
         try {
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            alert(rowIdx ? " تم تحديث السجل بنجاح!" : " تم الحفظ!"); 
-            if(!rowIdx) window.print(); // طباعة الوصل فقط عند الإضافة الجديدة
+            alert("تم الحفظ بنجاح!");
+            if(!rowIdx) window.print();
             location.reload();
-        } catch(e) { alert("خطأ في الاتصال بالخادم!"); btn.disabled = false; btn.innerText = " حفظ وطباعة "; }
-    }
-
-    async function searchCustomer() {
-        const n = document.getElementById('searchName').value.trim();
-        const resDiv = document.getElementById('searchResults');
-        if(!n) { resDiv.innerHTML = ""; return; }
-        resDiv.innerHTML = "<p style='text-align:center; color:var(--primary); font-weight:bold;'>جاري البحث...</p>";
-        
-        try {
-            const r = await fetch(SCRIPT_URL + "?name=" + encodeURIComponent(n));
-            const d = await r.json();
-            
-            resDiv.innerHTML = d.length === 0 ? "<p style='text-align:center;'> لا توجد سجلات مطابقة.</p>" : d.map(i => `
-                <div class="result-card">
-                    <div class="result-header">زبون: ${i.customer}</div>
-                    <b> التاريخ:</b> ${i.date}<br>
-                    <b> الجهاز:</b> ${i.phoneModel} (${i.brand})<br>
-                    <b>العطل:</b> ${i.issue} | <b> السعر:</b> ${i.price} | <b> ${i.payment}</b><br>
-                    <small>ملاحظات: ${i.notes || 'لا ملاحظات'}</small>
-                    <div class="result-actions no-print">
-                        <button class="btn-edit" onclick='fillForEdit(${JSON.stringify(i).replace(/'/g, "&apos;")})'>تعديل</button>
-                        <button class="btn-delete" onclick="deleteItem(${i.rowIdx})">حذف</button>
-                    </div>
-                </div>
-            `).join('');
-        } catch(e) { resDiv.innerHTML = "<p style='text-align:center; color:red;'>خطأ في جلب البيانات!</p>"; }
+        } catch(e) { alert("خطأ!"); btn.disabled = false; }
     }
 
     function fillForEdit(i) {
@@ -332,32 +269,25 @@
         document.getElementById('issueType').value = i.issue;
         document.getElementById('price').value = i.price;
         autoDivide();
-        document.getElementById('mainBtn').innerText = "تحديث السجل";
-        // التمرير لأعلى الواجهة
+        document.getElementById('mainBtn').innerText = "تحديث السجل الحالي";
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     async function deleteItem(idx) {
-        if(!confirm("هل أنت متأكد من حذف هذا السجل نهائياً من الأرشيف؟")) return;
+        if(!confirm("حذف السجل نهائياً؟")) return;
         try {
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({action: "DELETE", rowIdx: idx}) });
-            alert(" تم الحذف!");
-            searchCustomer(); // إعادة البحث لتحديث النتائج
-        } catch(e) { alert("خطأ في الحذف!"); }
+            alert("تم الحذف!");
+            openArchive();
+        } catch(e) { alert("خطأ!"); }
     }
 
-    function clearFields() {
-        ['custName', 'custPhone', 'phoneModel', 'brand', 'issueType', 'price', 'halfPrice', 'notes', 'searchName', 'editRowIdx'].forEach(id => {
-            if(document.getElementById(id)) document.getElementById(id).value = '';
-        });
-        document.getElementById('searchResults').innerHTML = '';
-        document.getElementById('mainBtn').innerText = "حفظ وطباعة";
+    function editShopName() {
+        const n = prompt("اسم المحل الجديد:", localStorage.getItem('sarmad_pro_v6'));
+        if(n) { localStorage.setItem('sarmad_pro_v6', n); document.getElementById('shopTitle').innerText = n; }
     }
 
-    // منع اختصارات النسخ الشائعة
-    document.addEventListener('keydown', e => {
-        if (e.ctrlKey && ['c', 'u', 's', 'a'].includes(e.key)) e.preventDefault();
-    });
+    document.addEventListener('keydown', e => { if (e.ctrlKey && ['c', 'u', 's', 'a'].includes(e.key)) e.preventDefault(); });
 </script>
 </body>
 </html>
