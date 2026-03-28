@@ -167,8 +167,9 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzErXHfU-e7IcZPR0hZUA3O0If01CBToxW2EeCB6OMfcbmvOLR_1smB_L5IHMbnyZj/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwkT9a6AVg4OgY2J-5unrDonuQS9MCtzb-baTARlYlnhCFKA0Fx9RvFcfCGSOg53NXp/exec";
     let allData = [];
+    const ADMIN_PASS = "tsm"; // رمز الدخول المطلوب للتعديل والحذف
 
     window.onload = () => {
         const n = localStorage.getItem('sarmad_pro_v6');
@@ -260,6 +261,11 @@
     }
 
     function fillForEdit(i) {
+        const pass = prompt("يرجى إدخال رمز الدخول للتعديل:");
+        if (pass !== ADMIN_PASS) {
+            alert("رمز الدخول غير صحيح!");
+            return;
+        }
         showTab('entry');
         document.getElementById('editRowIdx').value = i.rowIdx;
         document.getElementById('custName').value = i.customer;
@@ -274,6 +280,11 @@
     }
 
     async function deleteItem(idx) {
+        const pass = prompt("يرجى إدخال رمز الدخول للحذف:");
+        if (pass !== ADMIN_PASS) {
+            alert("رمز الدخول غير صحيح!");
+            return;
+        }
         if(!confirm("حذف السجل نهائياً؟")) return;
         try {
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({action: "DELETE", rowIdx: idx}) });
