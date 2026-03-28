@@ -2,153 +2,301 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>محرر الصوت الاحترافي - نسخة مستقرة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مبيعات طالب Pro - النسخة الأسرع</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #121212; --panel: #1e1e1e; --accent: #00d2ff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; display: flex; justify-content: center; padding: 20px; }
-        .app-container { background: var(--panel); padding: 30px; border-radius: 20px; width: 100%; max-width: 600px; text-align: center; border: 1px solid #333; }
-        .status-light { width: 12px; height: 12px; background: grey; border-radius: 50%; display: inline-block; margin-left: 10px; }
-        .recording { background: #ff4757; box-shadow: 0 0 10px #ff4757; }
-        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        button { padding: 15px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; background: #333; color: white; }
-        button:active { transform: scale(0.95); }
-        .btn-rec { background: #ff4757; }
-        .btn-play { background: #2ecc71; }
-        .effects { margin-top: 30px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 15px; }
-        .slider-box { margin-bottom: 15px; text-align: right; }
-        input[type="range"] { width: 100%; cursor: pointer; }
-        audio { width: 100%; margin-top: 20px; filter: invert(1); }
+        :root {
+            --bg-dark: #070b14;
+            --card-dark: #111827;
+            --primary: #d4af37; /* ذهبي ملكي */
+            --accent: #fbbf24;
+            --text-main: #f9fafb;
+            --text-muted: #6b7280;
+            --border: #1f2937;
+            --glow: rgba(212, 175, 55, 0.2);
+        }
+
+        /* حماية المحتوى ومنع النسخ */
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+            user-select: none; 
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-dark);
+            margin: 0; padding: 10px;
+            color: var(--text-main);
+            display: flex; justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%; max-width: 850px;
+            background: var(--card-dark);
+            border-radius: 28px; padding: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border: 1px solid var(--border);
+            animation: powerIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes powerIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .shop-header {
+            text-align: center; margin-bottom: 35px;
+            padding-bottom: 20px; border-bottom: 2px ridge var(--primary);
+        }
+
+        #shopTitle {
+            font-weight: 700; color: var(--primary);
+            font-size: 2rem; text-transform: uppercase;
+            letter-spacing: 1px; text-shadow: 0 0 20px var(--glow);
+        }
+
+        .section-box {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 22px; border-radius: 20px;
+            margin-bottom: 25px; border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+        .section-box:hover { border-color: var(--primary); box-shadow: 0 0 15px rgba(212, 175, 55, 0.05); }
+
+        .section-title {
+            color: var(--primary); font-size: 1.15rem;
+            font-weight: bold; margin-bottom: 18px;
+            display: flex; align-items: center; gap: 12px;
+        }
+
+        input, select, textarea {
+            width: 100%; padding: 15px 20px;
+            border: 2px solid var(--border);
+            border-radius: 16px; font-size: 16px;
+            background: #0a0f1a; color: #fff;
+            transition: all 0.2s ease-in-out;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 12px var(--glow);
+            background: #0f172a;
+        }
+
+        .row { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 15px; }
+        .col { flex: 1; min-width: 250px; }
+
+        .btn {
+            border: none; border-radius: 16px; padding: 18px;
+            font-weight: bold; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
+            gap: 12px; font-family: 'Cairo', sans-serif; font-size: 17px;
+        }
+
+        .btn-main { 
+            background: linear-gradient(45deg, var(--primary), #b8860b);
+            color: #000; width: 100%; margin-top: 15px;
+            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
+        }
+        .btn-main:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4); }
+
+        .btn-search { background: transparent; color: var(--primary); border: 2px solid var(--primary); height: 54px; min-width: 110px; }
+
+        .result-card {
+            background: #1a2233; border: 1px solid var(--border); padding: 18px;
+            border-radius: 16px; margin-top: 12px; border-right: 6px solid var(--primary);
+            cursor: pointer; transition: 0.2s;
+        }
+        .result-card:hover { background: #242d42; transform: scale(1.01); }
+
+        #setupOverlay {
+            position: fixed; inset: 0; background: var(--bg-dark);
+            z-index: 9999; display: none; flex-direction: column;
+            justify-content: center; align-items: center;
+        }
+
+        @media print { .no-print { display: none !important; } body { background: white; color: black; } }
+        @media (max-width: 500px) { .col { min-width: 100%; } .container { padding: 18px; } }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-<div class="app-container">
-    <h2>🎙️ مسجل ومعالج الصوت</h2>
-    <div id="light" class="status-light"></div>
-    <span id="statusText">جاهز للبدء</span>
+<div id="setupOverlay">
+    <div class="section-box" style="width:90%; max-width:400px; border:2px solid var(--primary); background: #111827;">
+        <h2 style="color:var(--primary); margin-bottom:20px;">نظام مبيعات طالب الملكي</h2>
+        <input type="text" id="shopInput" style="text-align: center;" placeholder="أدخل اسم المحل">
+        <button class="btn btn-main" onclick="saveShopName()">تفعيل النظام الفوري</button>
+    </div>
+</div>
 
-    <div class="controls">
-        <button id="startBtn" class="btn-rec">🔴 بدء التسجيل</button>
-        <button id="stopBtn" disabled>⏹️ إيقاف</button>
-        <button id="playBtn" class="btn-play" disabled>▶️ تشغيل المعدل</button>
-        <button id="deleteBtn" style="background: #555;">🗑️ مسح الكل</button>
+<div class="container">
+    <div class="shop-header">
+        <div id="shopTitle">نظام الصيانة الذكي</div>
+        <button class="no-print" onclick="editShopName()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:13px; margin-top:8px;">⚙️ تعديل بيانات المحل</button>
     </div>
 
-    <div class="effects">
-        <div class="slider-box">
-            <label>تأثير الصدى (Echo): <span id="echoVal">0</span></label>
-            <input type="range" id="echoSlider" min="0" max="0.8" step="0.1" value="0">
+    <div class="section-box no-print">
+        <div class="section-title">🔍 استدعاء فوري للسجلات</div>
+        <div class="row" style="align-items: center;">
+            <div style="flex: 1;"><input type="text" id="searchName" placeholder="ابحث باسم الزبون..." style="margin-bottom:0"></div>
+            <button class="btn btn-search" id="searchBtn" onclick="searchCustomer()">بحث</button>
         </div>
-        <div class="slider-box">
-            <label>تحسين الوضوح (AI Enhance):</label>
-            <button id="enhanceBtn" style="width: 100%; background: #9b59b6;">✨ تطبيق التحسين الذكي</button>
+        <div id="searchResults"></div>
+    </div>
+
+    <div class="section-box">
+        <div class="section-title">👤 تفاصيل الزبون والجهاز</div>
+        <div class="row">
+            <div class="col"><input type="text" id="custName" placeholder="اسم الزبون الكامل"></div>
+            <div class="col"><input type="tel" id="custPhone" placeholder="رقم الهاتف"></div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <select id="brand">
+                    <option value="" disabled selected>اختر الشركة</option>
+                    <option>سامسونج</option><option>هونر</option><option>هواوي</option>
+                    <option>تكنو</option><option>انفنكس</option><option>ريلمي</option>
+                    <option>بوكو</option><option>ايتل</option><option>موتريلا</option>
+                    <option>أخرى</option>
+                </select>
+            </div>
+            <div class="col"><input type="text" id="phoneModel" placeholder="موديل الجهاز"></div>
         </div>
     </div>
 
-    <audio id="audioPlayback" controls></audio>
+    <div class="section-box">
+        <div class="section-title">⚖️ الحسابات والعطل</div>
+        <div class="row">
+            <div class="col">
+                <select id="issueType">
+                    <option value="" disabled selected>نوع العطل</option>
+                    <option>شاشة</option><option>قاعدة</option><option>بطارية</option>
+                    <option>سماعة</option><option>فلاتة شحن</option><option>ظهر</option>
+                    <option>معالج</option><option>هيكل</option><option>ازرار</option>
+                    <option>غير ذلك</option>
+                </select>
+            </div>
+            <div class="col">
+                <select id="paymentStatus">
+                    <option>✅ واصل</option><option>❌ غير واصل</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col"><input type="number" id="price" placeholder="المبلغ الكلي" oninput="autoDivide()"></div>
+            <div class="col"><input type="number" id="halfPrice" placeholder="النصف (تلقائي)" readonly style="background:rgba(212,175,55,0.1); color:var(--primary); font-weight:bold; border-style:dashed;"></div>
+        </div>
+    </div>
+
+    <textarea id="notes" rows="2" placeholder="ملاحظات الصيانة..."></textarea>
+
+    <button class="btn btn-main no-print" onclick="submitData()" id="mainBtn">🚀 حفظ البيانات وطباعة الوصل</button>
 </div>
 
 <script>
-    let mediaRecorder;
-    let audioChunks = [];
-    let audioContext;
-    let audioBuffer;
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2brhi3QsVUMdcHiL2uI2PBqFNVchi0JDum8LIH3holq2SOFIoogxB8cmONCXgg9o4/exec";
 
-    const startBtn = document.getElementById('startBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const playBtn = document.getElementById('playBtn');
-    const light = document.getElementById('light');
-    const statusText = document.getElementById('statusText');
-    const audioPlayback = document.getElementById('audioPlayback');
-
-    // 1. وظيفة التسجيل
-    startBtn.onclick = async () => {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            audioChunks = [];
-
-            mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
-            
-            mediaRecorder.onstop = () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                const audioUrl = URL.createObjectURL(audioBlob);
-                audioPlayback.src = audioUrl;
-                playBtn.disabled = false;
-                statusText.innerText = "تم حفظ التسجيل!";
-            };
-
-            mediaRecorder.start();
-            startBtn.disabled = true;
-            stopBtn.disabled = false;
-            light.classList.add('recording');
-            statusText.innerText = "جاري التسجيل الآن...";
-        } catch (err) {
-            alert("لا يمكن الوصول للميكروفون. تأكد من إعطاء الإذن للمتصفح.");
-        }
+    window.onload = () => {
+        const n = localStorage.getItem('sarmad_ultra_v6');
+        if (!n) document.getElementById('setupOverlay').style.display = 'flex';
+        else document.getElementById('shopTitle').innerText = n;
     };
 
-    stopBtn.onclick = () => {
-        mediaRecorder.stop();
-        startBtn.disabled = false;
-        stopBtn.disabled = true;
-        light.classList.remove('recording');
-    };
-
-    // 2. معالجة الصوت (الصدى والتحسين)
-    async function processAudio(isEnhance = false) {
-        if (!audioPlayback.src) return;
-
-        // تهيئة الـ Audio Context
-        if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        
-        const response = await fetch(audioPlayback.src);
-        const arrayBuffer = await response.arrayBuffer();
-        const decodedData = await audioContext.decodeAudioData(arrayBuffer);
-
-        const source = audioContext.createBufferSource();
-        source.buffer = decodedData;
-
-        // عقدة الصدى
-        const delay = audioContext.createDelay();
-        delay.delayTime.value = 0.3;
-        const feedback = audioContext.createGain();
-        feedback.gain.value = parseFloat(document.getElementById('echoSlider').value);
-
-        // عقدة التحسين (AI Filter) - تقليل الضجيج وتوضيح الطبقة
-        const filter = audioContext.createBiquadFilter();
-        filter.type = "highshelf";
-        filter.frequency.value = 3000;
-        filter.gain.value = isEnhance ? 15 : 0;
-
-        const masterGain = audioContext.createGain();
-
-        // التوصيل
-        source.connect(filter);
-        filter.connect(masterGain);
-        
-        // مسار الصدى
-        filter.connect(delay);
-        delay.connect(feedback);
-        feedback.connect(delay);
-        delay.connect(masterGain);
-
-        masterGain.connect(audioContext.destination);
-
-        source.start();
-        statusText.innerText = isEnhance ? "تم تطبيق التحسين والتشغيل" : "جاري التشغيل مع الصدى";
+    function saveShopName() {
+        const v = document.getElementById('shopInput').value;
+        if(v) { localStorage.setItem('sarmad_ultra_v6', v); location.reload(); }
     }
 
-    playBtn.onclick = () => processAudio(false);
-    document.getElementById('enhanceBtn').onclick = () => processAudio(true);
-    
-    document.getElementById('echoSlider').oninput = (e) => {
-        document.getElementById('echoVal').innerText = e.target.value;
-    };
+    function editShopName() {
+        const n = prompt("الاسم الجديد:", localStorage.getItem('sarmad_ultra_v6'));
+        if(n) { localStorage.setItem('sarmad_ultra_v6', n); document.getElementById('shopTitle').innerText = n; }
+    }
 
-    document.getElementById('deleteBtn').onclick = () => {
-        location.reload();
-    };
+    function autoDivide() {
+        const p = document.getElementById('price').value;
+        document.getElementById('halfPrice').value = p ? Math.round(p / 2) : '';
+    }
+
+    async function submitData() {
+        const btn = document.getElementById('mainBtn');
+        const data = {
+            shopName: localStorage.getItem('sarmad_ultra_v6'),
+            customerName: document.getElementById('custName').value,
+            phone: document.getElementById('custPhone').value,
+            phoneModel: document.getElementById('phoneModel').value,
+            brand: document.getElementById('brand').value,
+            issueType: document.getElementById('issueType').value,
+            paymentStatus: document.getElementById('paymentStatus').value,
+            price: document.getElementById('price').value,
+            notes: document.getElementById('notes').value
+        };
+
+        if(!data.customerName || !data.price) return alert("⚠️ أكمل البيانات المطلوبة!");
+        
+        btn.disabled = true; btn.innerText = "جاري المزامنة الفورية... ⚡";
+        
+        try {
+            // الحفظ السريع
+            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
+            
+            // الطباعة فوراً دون انتظار استجابة السيرفر لزيادة السرعة
+            window.print();
+            
+            alert("✅ تم الحفظ بنجاح!");
+            clearFields(); // تفريغ الخانات تلقائياً
+        } catch(e) { alert("خطأ!"); }
+        finally { btn.disabled = false; btn.innerText = "🚀 حفظ البيانات وطباعة الوصل"; }
+    }
+
+    async function searchCustomer() {
+        const n = document.getElementById('searchName').value;
+        const resDiv = document.getElementById('searchResults');
+        if(!n) return;
+        resDiv.innerHTML = "<p style='color:var(--primary); animation: blink 1s infinite;'>جاري الاتصال بقاعدة البيانات... 📡</p>";
+        
+        try {
+            const response = await fetch(SCRIPT_URL + "?name=" + encodeURIComponent(n));
+            const data = await response.json();
+            
+            resDiv.innerHTML = data.length === 0 ? "<p>لا توجد سجلات.</p>" : data.map(i => `
+                <div class="result-card" onclick="fillInputs(${JSON.stringify(i).replace(/"/g, '&quot;')})">
+                    <b style="color:var(--primary)">📅 ${i.date}</b> | ${i.phoneModel}<br>
+                    عطل: ${i.issue} | سعر: ${i.price} | ${i.payment}
+                </div>
+            `).join('');
+        } catch(e) { resDiv.innerHTML = "خطأ في الاستدعاء!"; }
+    }
+
+    function fillInputs(i) {
+        document.getElementById('custName').value = i.customer;
+        document.getElementById('brand').value = i.brand || 'أخرى';
+        document.getElementById('phoneModel').value = i.phoneModel;
+        document.getElementById('issueType').value = i.issue;
+        document.getElementById('price').value = i.price;
+        autoDivide();
+    }
+
+    function clearFields() {
+        // تفريغ كافة الحقول بعد الحفظ
+        document.getElementById('custName').value = '';
+        document.getElementById('custPhone').value = '';
+        document.getElementById('phoneModel').value = '';
+        document.getElementById('brand').value = '';
+        document.getElementById('issueType').value = '';
+        document.getElementById('price').value = '';
+        document.getElementById('halfPrice').value = '';
+        document.getElementById('notes').value = '';
+        document.getElementById('searchResults').innerHTML = '';
+    }
+
+    // منع الاختصارات والنسخ
+    document.addEventListener('keydown', e => {
+        if (e.ctrlKey && (e.key === 'c' || e.key === 'u' || e.key === 's' || e.key === 'a')) e.preventDefault();
+    });
 </script>
+
+<style> @keyframes blink { 50% { opacity: 0.5; } } </style>
 </body>
 </html>
