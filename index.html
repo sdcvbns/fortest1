@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مبيعات طالب Pro - الإصدار المستقر</title>
+    <title>مبيعات طالب Pro - النسخة المؤمنة 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -77,11 +77,7 @@
             font-size: 18px; cursor: pointer; margin-top: 10px;
         }
 
-        /* تنسيق قائمة السجل */
-        #scrollContainer {
-            max-height: 550px; overflow-y: auto;
-            padding: 5px; border-radius: 10px;
-        }
+        #scrollContainer { max-height: 550px; overflow-y: auto; padding: 5px; border-radius: 10px; }
 
         .result-card {
             background: #fff; border: 1px solid var(--border);
@@ -104,7 +100,7 @@
 
 <div class="container">
     <div class="header">
-        <div id="shopTitle"></div>
+        <div id="shopTitle">محل صيانة الجوالات</div>
         <button class="no-print" onclick="editShopName()" style="background:none; border:none; color:var(--primary); cursor:pointer; font-size:12px; font-weight:bold;">تعديل الاسم</button>
     </div>
 
@@ -125,7 +121,7 @@
                 <div class="col">
                     <select id="brand">
                         <option value="" disabled selected>الشركة المصنعة</option>
-                        <option>سامسونج</option><option>هونر</option><option>هواوي</option><option>تكنو</option><option>انفنكس</option><option>ريلمي</option><option>بوكو</option><option>ايتل</option><option>موتريلا</option><option>أخرى</option>
+                        <option>سامسونج</option><option>آيفون</option><option>هونر</option><option>هواوي</option><option>تكنو</option><option>انفنكس</option><option>ريلمي</option><option>بوكو</option><option>ايتل</option><option>موتريلا</option><option>أخرى</option>
                     </select>
                 </div>
                 <div class="col"><input type="text" id="phoneModel" placeholder="موديل الجهاز"></div>
@@ -137,7 +133,7 @@
                 <div class="col">
                     <select id="issueType">
                         <option value="" disabled selected>نوع العطل</option>
-                        <option>شاشة</option><option>قاعدة</option><option>بطارية</option><option>سماعة</option><option>فلاتة شحن</option><option>ظهر</option><option>معالج</option><option>هيكل</option><option>ازرار</option>
+                        <option>شاشة</option><option>قاعدة شحن</option><option>بطارية</option><option>سماعة</option><option>فلاتة شحن</option><option>ظهر</option><option>معالج</option><option>هيكل</option><option>ازرار</option><option>سوفتوير</option>
                     </select>
                 </div>
                 <div class="col">
@@ -167,9 +163,8 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwkT9a6AVg4OgY2J-5unrDonuQS9MCtzb-baTARlYlnhCFKA0Fx9RvFcfCGSOg53NXp/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTLFDpARYhYMWI7r4IR-JBCHibdIgvp9ZHUgUXk__yGUMyseB0FU-bTbBddteWW_Nz/exec";
     let allData = [];
-    const ADMIN_PASS = "tsm"; // رمز الدخول المطلوب للتعديل والحذف
 
     window.onload = () => {
         const n = localStorage.getItem('sarmad_pro_v6');
@@ -187,7 +182,7 @@
     async function openArchive() {
         showTab('archive');
         const resDiv = document.getElementById('searchResults');
-        resDiv.innerHTML = "<p style='text-align:center; color:var(--primary);'>جاري تحميل السجلات السابقة... 📡</p>";
+        resDiv.innerHTML = "<p style='text-align:center; color:var(--primary);'>جاري تحميل السجلات السابقة... </p>";
         
         try {
             const r = await fetch(SCRIPT_URL + "?name=");
@@ -209,7 +204,8 @@
                 <div class="result-header">زبون: ${i.customer}</div>
                 <b>التاريخ:</b> ${i.date}<br>
                 <b>الجهاز:</b> ${i.phoneModel} (${i.brand})<br>
-                <b>العطل:</b> ${i.issue} | <b>السعر:</b> ${i.price} | <b>${i.payment}</b>
+                <b>العطل:</b> ${i.issue} | <b>السعر:</b> ${i.price} | <b>${i.payment}</b><br>
+                ${i.notes ? `<b>ملاحظات:</b> ${i.notes}` : ''}
                 <div class="result-actions no-print">
                     <button class="btn-edit" onclick='fillForEdit(${JSON.stringify(i).replace(/'/g, "&apos;")})'>تعديل</button>
                     <button class="btn-delete" onclick="deleteItem(${i.rowIdx})">حذف</button>
@@ -235,9 +231,18 @@
     async function submitData() {
         const btn = document.getElementById('mainBtn');
         const rowIdx = document.getElementById('editRowIdx').value;
+        
+        // التحقق من الرمز فقط في حالة التعديل
+        let passValue = "";
+        if(rowIdx) {
+            passValue = prompt("أدخل الرمز لتأكيد التعديل:");
+            if(!passValue) return;
+        }
+
         const data = {
             action: rowIdx ? "UPDATE" : "ADD",
             rowIdx: rowIdx,
+            pass: passValue, // إرسال الرمز للتحقق في السيرفر
             shopName: document.getElementById('shopTitle').innerText,
             customerName: document.getElementById('custName').value,
             phone: document.getElementById('custPhone').value,
@@ -250,22 +255,17 @@
         };
 
         if(!data.customerName || !data.price) return alert("أكمل البيانات!");
-        btn.disabled = true; btn.innerText = "جاري الحفظ...";
+        btn.disabled = true; btn.innerText = "جاري المعالجة...";
         
         try {
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) });
-            alert("تم الحفظ بنجاح!");
+            alert("تمت العملية بنجاح! (إذا لم يتغير السجل، فالرمز خطأ)");
             if(!rowIdx) window.print();
             location.reload();
-        } catch(e) { alert("خطأ!"); btn.disabled = false; }
+        } catch(e) { alert("خطأ في الاتصال!"); btn.disabled = false; }
     }
 
     function fillForEdit(i) {
-        const pass = prompt("يرجى إدخال رمز الدخول للتعديل:");
-        if (pass !== ADMIN_PASS) {
-            alert("رمز الدخول غير صحيح!");
-            return;
-        }
         showTab('entry');
         document.getElementById('editRowIdx').value = i.rowIdx;
         document.getElementById('custName').value = i.customer;
@@ -273,22 +273,26 @@
         document.getElementById('brand').value = i.brand || '';
         document.getElementById('phoneModel').value = i.phoneModel;
         document.getElementById('issueType').value = i.issue;
+        document.getElementById('paymentStatus').value = i.payment;
         document.getElementById('price').value = i.price;
+        document.getElementById('notes').value = i.notes || '';
         autoDivide();
-        document.getElementById('mainBtn').innerText = "تحديث السجل الحالي";
+        document.getElementById('mainBtn').innerText = "تحديث السجل (سيطلب الرمز)";
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     async function deleteItem(idx) {
         const pass = prompt("يرجى إدخال رمز الدخول للحذف:");
-        if (pass !== ADMIN_PASS) {
-            alert("رمز الدخول غير صحيح!");
-            return;
-        }
+        if (!pass) return;
+
         if(!confirm("حذف السجل نهائياً؟")) return;
         try {
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({action: "DELETE", rowIdx: idx}) });
-            alert("تم الحذف!");
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                body: JSON.stringify({action: "DELETE", rowIdx: idx, pass: pass}) 
+            });
+            alert("تم إرسال طلب الحذف.");
             openArchive();
         } catch(e) { alert("خطأ!"); }
     }
